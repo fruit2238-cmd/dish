@@ -1,0 +1,6 @@
+{
+  "name": "얌얌급식 (YumYum Lunch)",
+  "description": "전국 초·중·고등학교 급식 식단을 한눈에 확인하고 나이스(NEIS) 공식 API와 연동하는 귀여운 핑크빛 학교 급식 알리미",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
