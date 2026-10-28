@@ -110,26 +110,30 @@ async function requestNeis(endpoint: string, params: Record<string, string | num
   }
 
   const queryString = searchParams.toString();
+  const directUrl = `https://open.neis.go.kr/hub/${endpoint}?${queryString}`;
 
-  // Try proxy first (avoids browser security CORS headers if server proxy is up)
+  // 1. Direct fetch to NEIS API (open.neis.go.kr supports CORS Access-Control-Allow-Origin: *)
+  try {
+    const directRes = await fetch(directUrl);
+    if (directRes.ok) {
+      return await directRes.json();
+    }
+  } catch (err) {
+    console.warn('Direct NEIS fetch failed, attempting proxy fallback...', err);
+  }
+
+  // 2. Proxy fetch fallback (for environments with Vite proxy or server route)
   try {
     const proxyUrl = `/api/neis/hub/${endpoint}?${queryString}`;
     const proxyRes = await fetch(proxyUrl, { headers: { Accept: 'application/json' } });
     if (proxyRes.ok) {
-      const data = await proxyRes.json();
-      return data;
+      return await proxyRes.json();
     }
-  } catch {
-    // proceed to direct fetch
+  } catch (err) {
+    console.warn('Proxy NEIS fetch failed:', err);
   }
 
-  // Direct fetch fallback
-  const directUrl = `https://open.neis.go.kr/hub/${endpoint}?${queryString}`;
-  const directRes = await fetch(directUrl);
-  if (!directRes.ok) {
-    throw new Error(`NEIS API 요청 실패 (HTTP ${directRes.status})`);
-  }
-  return await directRes.json();
+  throw new Error('NEIS API 요청에 실패했습니다.');
 }
 
 // Search schools by name
